@@ -4,17 +4,17 @@ import { storageLocal, isString, isIncludeAllChildren } from "@pureadmin/utils";
 
 export interface DataInfo<T> {
   /** token */
-  accessToken: string;
-  /** `accessToken`的过期时间（时间戳） */
-  expires: T;
+  token: string;
+  /** `accessToken`的过期时间（时间戳）,加问号即可有可无 */
+  expires?: T;
   /** 用于调用刷新accessToken的接口时所需的token */
-  refreshToken: string;
+  refreshToken?: string;
   /** 头像 */
   avatar?: string;
   /** 用户名 */
-  username?: string;
+  userName?: string;
   /** 昵称 */
-  nickname?: string;
+  name?: string;
   /** 当前登录用户的角色 */
   roles?: Array<string>;
   /** 当前登录用户的按钮级别权限 */
@@ -46,11 +46,13 @@ export function getToken(): DataInfo<number> {
  * 将`avatar`、`username`、`nickname`、`roles`、`permissions`、`refreshToken`、`expires`这七条信息放在key值为`user-info`的localStorage里（利用`multipleTabsKey`当浏览器完全关闭后自动销毁）
  */
 export function setToken(data: DataInfo<Date>) {
-  let expires = 0;
-  const { accessToken, refreshToken } = data;
+  const expires = data.expires
+    ? new Date(data.expires).getTime()
+    : Date.now() + 7 * 24 * 60 * 60 * 1000; // 因为后端没有设置时间戳，所以我们直接设置时间戳为7天,如果后端直接设置时间戳，将此处代码改为expires = data.expires，然后把上面的DataInfo<Date>改成DataInfo<number>即可
+  const { token } = data;
   const { isRemembered, loginDay } = useUserStoreHook();
-  expires = new Date(data.expires).getTime(); // 如果后端直接设置时间戳，将此处代码改为expires = data.expires，然后把上面的DataInfo<Date>改成DataInfo<number>即可
-  const cookieString = JSON.stringify({ accessToken, expires, refreshToken });
+  //expires = new Date(data.expires).getTime(); // 如果后端直接设置时间戳，将此处代码改为expires = data.expires，然后把上面的DataInfo<Date>改成DataInfo<number>即可
+  const cookieString = JSON.stringify({ token, expires });
 
   expires > 0
     ? Cookies.set(TokenKey, cookieString, {
@@ -68,46 +70,45 @@ export function setToken(data: DataInfo<Date>) {
       : {}
   );
 
-  function setUserKey({ avatar, username, nickname, roles, permissions }) {
+  function setUserKey({ avatar, userName, nickname, roles, permissions }) {
     useUserStoreHook().SET_AVATAR(avatar);
-    useUserStoreHook().SET_USERNAME(username);
+    useUserStoreHook().SET_USERNAME(userName);
     useUserStoreHook().SET_NICKNAME(nickname);
     useUserStoreHook().SET_ROLES(roles);
     useUserStoreHook().SET_PERMS(permissions);
     storageLocal().setItem(userKey, {
-      refreshToken,
       expires,
       avatar,
-      username,
+      userName,
       nickname,
       roles,
       permissions
     });
   }
 
-  if (data.username && data.roles) {
-    const { username, roles } = data;
+  if (data.userName && data.roles) {
+    const { userName, roles } = data;
     setUserKey({
       avatar: data?.avatar ?? "",
-      username,
-      nickname: data?.nickname ?? "",
+      userName,
+      nickname: data?.name ?? "",
       roles,
       permissions: data?.permissions ?? []
     });
   } else {
     const avatar =
       storageLocal().getItem<DataInfo<number>>(userKey)?.avatar ?? "";
-    const username =
-      storageLocal().getItem<DataInfo<number>>(userKey)?.username ?? "";
+    const userName =
+      storageLocal().getItem<DataInfo<number>>(userKey)?.userName ?? "";
     const nickname =
-      storageLocal().getItem<DataInfo<number>>(userKey)?.nickname ?? "";
+      storageLocal().getItem<DataInfo<number>>(userKey)?.name ?? "";
     const roles =
       storageLocal().getItem<DataInfo<number>>(userKey)?.roles ?? [];
     const permissions =
       storageLocal().getItem<DataInfo<number>>(userKey)?.permissions ?? [];
     setUserKey({
       avatar,
-      username,
+      userName,
       nickname,
       roles,
       permissions

@@ -9,9 +9,9 @@ import {
 } from "../utils";
 import {
   type UserResult,
-  type RefreshTokenResult,
-  getLogin,
-  refreshTokenApi
+  //type RefreshTokenResult,
+  getLogin
+  //refreshTokenApi
 } from "@/api/user";
 import { useMultiTagsStoreHook } from "./multiTags";
 import { type DataInfo, setToken, removeToken, userKey } from "@/utils/auth";
@@ -21,9 +21,9 @@ export const useUserStore = defineStore("pure-user", {
     // 头像
     avatar: storageLocal().getItem<DataInfo<number>>(userKey)?.avatar ?? "",
     // 用户名
-    username: storageLocal().getItem<DataInfo<number>>(userKey)?.username ?? "",
+    username: storageLocal().getItem<DataInfo<number>>(userKey)?.userName ?? "",
     // 昵称
-    nickname: storageLocal().getItem<DataInfo<number>>(userKey)?.nickname ?? "",
+    nickname: storageLocal().getItem<DataInfo<number>>(userKey)?.name ?? "",
     // 页面级别权限
     roles: storageLocal().getItem<DataInfo<number>>(userKey)?.roles ?? [],
     // 按钮级别权限
@@ -68,7 +68,7 @@ export const useUserStore = defineStore("pure-user", {
       return new Promise<UserResult>((resolve, reject) => {
         getLogin(data)
           .then(data => {
-            if (data?.success) setToken(data.data);
+            if (data.code == 1) setToken(data.data);
             resolve(data);
           })
           .catch(error => {
@@ -85,22 +85,22 @@ export const useUserStore = defineStore("pure-user", {
       useMultiTagsStoreHook().handleTags("equal", [...routerArrays]);
       resetRouter();
       router.push("/login");
-    },
-    /** 刷新`token` */
-    async handRefreshToken(data) {
-      return new Promise<RefreshTokenResult>((resolve, reject) => {
-        refreshTokenApi(data)
-          .then(data => {
-            if (data) {
-              setToken(data.data);
-              resolve(data);
-            }
-          })
-          .catch(error => {
-            reject(error);
-          });
-      });
     }
+    // /** 刷新`token` */
+    // async handRefreshToken(data) {
+    //   return new Promise<RefreshTokenResult>((resolve, reject) => {
+    //     refreshTokenApi(data)
+    //       .then(data => {
+    //         if (data.code == 1) {
+    //           setToken(data.data);
+    //           resolve(data);
+    //         }
+    //       })
+    //       .catch(error => {
+    //         reject(error);
+    //       });
+    //   });
+    // }
   }
 });
 
