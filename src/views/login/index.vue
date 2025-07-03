@@ -38,7 +38,7 @@ const { title } = useNav();
 
 const ruleForm = reactive({
   username: "admin",
-  password: "admin123"
+  password: "12345678kk"
 });
 
 const onLogin = async (formEl: FormInstance | undefined) => {
@@ -52,7 +52,7 @@ const onLogin = async (formEl: FormInstance | undefined) => {
           password: ruleForm.password
         })
         .then(res => {
-          if (res.success) {
+          if (res.code == 1) {
             // 获取后端路由
             return initRouter().then(() => {
               disabled.value = true;
@@ -60,6 +60,11 @@ const onLogin = async (formEl: FormInstance | undefined) => {
                 .push(getTopMenu(true).path)
                 .then(() => {
                   message("登录成功", { type: "success" });
+                })
+                .catch(initError => {
+                  console.error("路由初始化失败", initError);
+                  message("路由初始化失败", { type: "error" });
+                  loading.value = false;
                 })
                 .finally(() => (disabled.value = false));
             });
