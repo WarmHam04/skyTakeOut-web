@@ -1,8 +1,10 @@
 export default {
   path: "/setmeal",
   name: "setmealParent",
+  redirect: "/setmeal/index",
   meta: {
-    title: "套餐管理"
+    title: "套餐管理",
+    rank: 4
   },
   children: [
     {

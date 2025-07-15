@@ -1,8 +1,10 @@
 export default {
   path: "/order",
   name: "orderParent",
+  redirect: "/order/index",
   meta: {
-    title: "订单管理"
+    title: "订单管理",
+    rank: 3
   },
   children: [
     {

@@ -1,8 +1,10 @@
 export default {
   path: "/worktable",
   name: "WorkTableParent",
+  redirect: "/worktable/index",
   meta: {
-    title: "工作台"
+    title: "工作台",
+    rank: 1
   },
   children: [
     {

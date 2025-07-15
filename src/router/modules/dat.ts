@@ -1,8 +1,10 @@
 export default {
   path: "/dat",
   name: "datParent",
+  redirect: "/dat/index",
   meta: {
-    title: "数据管理"
+    title: "数据管理",
+    rank: 2
   },
   children: [
     {

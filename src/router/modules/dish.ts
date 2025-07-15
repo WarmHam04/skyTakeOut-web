@@ -1,8 +1,10 @@
 export default {
   path: "/dish",
   name: "dishParent",
+  redirect: "/dish/index",
   meta: {
-    title: "菜品管理"
+    title: "菜品管理",
+    rank: 5
   },
   children: [
     {

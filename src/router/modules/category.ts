@@ -1,8 +1,10 @@
 export default {
   path: "/category",
   name: "categoryParent",
+  redirect: "/category/index",
   meta: {
-    title: "分类管理"
+    title: "分类管理",
+    rank: 6
   },
   children: [
     {
