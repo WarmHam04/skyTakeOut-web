@@ -1,6 +1,6 @@
 import dayjs from "dayjs";
 import editForm from "../form.vue";
-import { handleTree } from "@/utils/tree";
+//import { handleTree } from "@/utils/tree";
 import { message } from "@/utils/message";
 import { ElMessageBox } from "element-plus";
 import { usePublicHooks } from "@/views/hooks";
@@ -9,7 +9,7 @@ import { addDialog } from "@/components/ReDialog";
 import type { FormItemProps } from "../utils/types";
 import type { PaginationProps } from "@pureadmin/table";
 import { getKeyList, deviceDetection } from "@pureadmin/utils";
-import { getRoleList, getRoleMenu, getRoleMenuIds } from "@/api/employee";
+import { getEmployee, getEmployeeMenuIds } from "@/api/employee";
 import { type Ref, reactive, ref, onMounted, h, toRaw, watch } from "vue";
 
 export function useRole(treeRef: Ref) {
@@ -163,11 +163,12 @@ export function useRole(treeRef: Ref) {
 
   async function onSearch() {
     loading.value = true;
-    const { data } = await getRoleList(toRaw(form));
-    dataList.value = data.list;
+    const { data } = await getEmployee(toRaw(form));
+    dataList.value = data.record;
     pagination.total = data.total;
-    pagination.pageSize = data.pageSize;
-    pagination.currentPage = data.currentPage;
+    //注释掉需要后端返回page数据的逻辑，后续可根据实际情况调整
+    //pagination.pageSize = data.pageSize;
+    //pagination.currentPage = data.currentPage;
 
     setTimeout(() => {
       loading.value = false;
@@ -229,7 +230,7 @@ export function useRole(treeRef: Ref) {
     if (id) {
       curRow.value = row;
       isShow.value = true;
-      const { data } = await getRoleMenuIds({ id });
+      const { data } = await getEmployeeMenuIds({ id });
       treeRef.value.setCheckedKeys(data);
     } else {
       curRow.value = null;
@@ -268,9 +269,9 @@ export function useRole(treeRef: Ref) {
 
   onMounted(async () => {
     onSearch();
-    const { data } = await getRoleMenu();
+    const { data } = await getEmployee(toRaw(form));
     treeIds.value = getKeyList(data, "id");
-    treeData.value = handleTree(data);
+    //treeData.value = handleTree(data);
   });
 
   watch(isExpandAll, val => {
@@ -310,7 +311,7 @@ export function useRole(treeRef: Ref) {
     filterMethod,
     transformI18n,
     onQueryChanged,
-    // handleDatabase,
+    //handleDatabase,
     handleSizeChange,
     handleCurrentChange,
     handleSelectionChange
