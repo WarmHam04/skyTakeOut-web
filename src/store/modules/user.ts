@@ -64,12 +64,12 @@ export const useUserStore = defineStore("pure-user", {
       this.loginDay = Number(value);
     },
     /** 登入 */
-    async loginByUsername(data) {
+    async loginByUsername(credentials) {
       return new Promise<UserResult>((resolve, reject) => {
-        getLogin(data)
-          .then(data => {
-            if (data.code == 1) setToken(data.data);
-            resolve(data);
+        getLogin(credentials)
+          .then(loginResponse => {
+            if (loginResponse.code == 1) setToken(loginResponse.data);
+            resolve(loginResponse);
           })
           .catch(error => {
             reject(error);

@@ -1,3 +1,4 @@
+//停用登录cookie存储token
 import Cookies from "js-cookie";
 import { useUserStoreHook } from "@/store/modules/user";
 import { storageLocal, isString, isIncludeAllChildren } from "@pureadmin/utils";
@@ -5,7 +6,7 @@ import { storageLocal, isString, isIncludeAllChildren } from "@pureadmin/utils";
 export interface DataInfo<T> {
   /** token */
   token: string;
-  /** `accessToken`的过期时间（时间戳）,加问号即可有可无 */
+  /** `token`的过期时间（时间戳）,加问号即可有可无 */
   expires?: T;
   /** 用于调用刷新accessToken的接口时所需的token */
   refreshToken?: string;
@@ -32,11 +33,15 @@ export const TokenKey = "authorized-token";
 export const multipleTabsKey = "multiple-tabs";
 
 /** 获取`token` */
+//去除token存储在cookie的逻辑
 export function getToken(): DataInfo<number> {
   // 此处与`TokenKey`相同，此写法解决初始化时`Cookies`中不存在`TokenKey`报错
-  return Cookies.get(TokenKey)
-    ? JSON.parse(Cookies.get(TokenKey))
-    : storageLocal().getItem(userKey);
+  // return Cookies.get(TokenKey)
+  //   ? JSON.parse(Cookies.get(TokenKey))
+  //   : storageLocal().getItem(userKey);
+  return storageLocal().getItem(TokenKey)
+    ? JSON.parse(storageLocal().getItem(TokenKey))
+    : null;
 }
 
 /**
@@ -50,16 +55,18 @@ export function setToken(data: DataInfo<Date>) {
     ? new Date(data.expires).getTime()
     : Date.now() + 7 * 24 * 60 * 60 * 1000; // 因为后端没有设置时间戳，所以我们直接设置时间戳为7天,如果后端直接设置时间戳，将此处代码改为expires = data.expires，然后把上面的DataInfo<Date>改成DataInfo<number>即可
   const { token } = data;
-  const { isRemembered, loginDay } = useUserStoreHook();
+
   //expires = new Date(data.expires).getTime(); // 如果后端直接设置时间戳，将此处代码改为expires = data.expires，然后把上面的DataInfo<Date>改成DataInfo<number>即可
-  const cookieString = JSON.stringify({ token, expires });
+  //const cookieString = JSON.stringify({ token, expires });
 
-  expires > 0
-    ? Cookies.set(TokenKey, cookieString, {
-        expires: (expires - Date.now()) / 86400000
-      })
-    : Cookies.set(TokenKey, cookieString);
+  // expires > 0
+  //   ? Cookies.set(TokenKey, cookieString, {
+  //       expires: (expires - Date.now()) / 86400000
+  //     })
+  //   : Cookies.set(TokenKey, cookieString);
 
+  //保留cookie的多标签页支持逻辑和记住我功能
+  const { isRemembered, loginDay } = useUserStoreHook();
   Cookies.set(
     multipleTabsKey,
     "true",
@@ -69,6 +76,8 @@ export function setToken(data: DataInfo<Date>) {
         }
       : {}
   );
+
+  storageLocal().setItem(TokenKey, { token, expires });
 
   function setUserKey({ avatar, userName, nickname, roles, permissions }) {
     useUserStoreHook().SET_AVATAR(avatar);
@@ -117,9 +126,13 @@ export function setToken(data: DataInfo<Date>) {
 }
 
 /** 删除`token`以及key值为`user-info`的localStorage信息 */
+// export function removeToken() {
+//   Cookies.remove(TokenKey);
+//   Cookies.remove(multipleTabsKey);
+//   storageLocal().removeItem(userKey);
+// }
 export function removeToken() {
-  Cookies.remove(TokenKey);
-  Cookies.remove(multipleTabsKey);
+  storageLocal().removeItem(TokenKey);
   storageLocal().removeItem(userKey);
 }
 

@@ -26,9 +26,9 @@ export type UserResult = {
 // };
 
 /** 登录 */
-export const getLogin = (data?: object) => {
+export const getLogin = (credentials?: object) => {
   return http.request<UserResult>("post", baseUrlApi("admin/employee/login"), {
-    data
+    data: credentials
   });
 };
 
